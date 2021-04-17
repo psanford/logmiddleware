@@ -26,7 +26,7 @@ func WithLgrContext(ctx context.Context, lgr log15.Logger) context.Context {
 	return context.WithValue(ctx, lgrContextKey, lgr)
 }
 
-func LogMiddleware(next http.Handler) http.Handler {
+func New(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		url := *r.URL
 		host := r.Host
