@@ -33,6 +33,10 @@ func New(next http.Handler) http.Handler {
 
 		lgr := log15.New("url", url.String(), "host", host, "remote_addr", r.RemoteAddr)
 
+		if reqId := r.Header.Get("X-LambdaHttp-Aws-Request-Id"); reqId != "" {
+			lgr = lgr.New("aws_request_id", reqId)
+		}
+
 		childCtx := WithLgrContext(r.Context(), lgr)
 		childReq := r.WithContext(childCtx)
 
