@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/inconshreveable/log15"
+	"golang.org/x/exp/slog"
 )
 
 type ctxKey string
@@ -14,15 +14,15 @@ var (
 	lgrContextKey = ctxKey("lgr")
 )
 
-func LgrFromContext(ctx context.Context) log15.Logger {
+func LgrFromContext(ctx context.Context) *slog.Logger {
 	lgrI := ctx.Value(lgrContextKey)
 	if lgrI == nil {
-		return log15.New()
+		return slog.With()
 	}
-	return lgrI.(log15.Logger).New()
+	return lgrI.(*slog.Logger)
 }
 
-func WithLgrContext(ctx context.Context, lgr log15.Logger) context.Context {
+func WithLgrContext(ctx context.Context, lgr *slog.Logger) context.Context {
 	return context.WithValue(ctx, lgrContextKey, lgr)
 }
 
@@ -31,10 +31,10 @@ func New(next http.Handler) http.Handler {
 		url := *r.URL
 		host := r.Host
 
-		lgr := log15.New("url", url.String(), "host", host, "remote_addr", r.RemoteAddr)
+		lgr := slog.With("url", url.String(), "host", host, "remote_addr", r.RemoteAddr)
 
 		if reqId := r.Header.Get("X-LambdaHttp-Aws-Request-Id"); reqId != "" {
-			lgr = lgr.New("aws_request_id", reqId)
+			lgr = lgr.With("aws_request_id", reqId)
 		}
 
 		childCtx := WithLgrContext(r.Context(), lgr)
