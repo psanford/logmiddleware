@@ -2,10 +2,10 @@ package logmiddleware
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/felixge/httpsnoop"
-	"golang.org/x/exp/slog"
 )
 
 type ctxKey string
