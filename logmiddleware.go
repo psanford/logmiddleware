@@ -42,6 +42,11 @@ func New(next http.Handler) http.Handler {
 
 		metrics := httpsnoop.CaptureMetrics(next, w, childReq)
 
+		forwardedFor := r.Header.Get("x-forwarded-for")
+		if forwardedFor != "" {
+			lgr = lgr.With("x-forwarded-for", forwardedFor)
+		}
+
 		lgr.Info("request", "status", metrics.Code, "duration_ms", metrics.Duration.Milliseconds(), "resp_size", metrics.Written, "method", r.Method, "proto", r.Proto, "user_agent", r.UserAgent(), "referer", r.Referer())
 	})
 }
